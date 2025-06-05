@@ -80,7 +80,6 @@
     .promo-table { margin-top: 40px; }
   </style>
 
-
 </head>
 
 <body>
@@ -166,9 +165,8 @@
     </section>
   </div>
 
-<script src="main.js"></script>
+  <script src="main.js"></script>
   <script src="main2.js"></script>
   <script src="main3.js"></script>
-
 </body>
 </html>

@@ -25,7 +25,8 @@ public class ProductDAO {
 
     public void addProduct(Product product) {
         String sql = "INSERT INTO Product (name, SKU, categoryName, Size, Price, Discount, DiscountPrice) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, product.getName(), product.getSku(), product.getCategoryName(), product.getSize(), product.getPrice(), product.getDiscount(), product.getDiscountPrice());
+        jdbcTemplate.update(sql, product.getName(), product.getSku(), product.getCategoryName(), product.getSize(),
+                product.getPrice(), product.getDiscount(), product.getDiscountPrice());
     }
 
     public void deleteProduct(int id) {

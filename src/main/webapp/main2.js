@@ -28,7 +28,7 @@ function addItem() {
 
   console.log('Sending:', formData.toString());
 
-  fetch('/MiniProject2/addProduct', {
+  fetch('/mini_project_2/addProduct', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
