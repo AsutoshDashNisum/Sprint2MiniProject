@@ -1,0 +1,79 @@
+<!--<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"-->
+<!--       xmlns:context="http://www.springframework.org/schema/context"-->
+<!--       xmlns:mvc="http://www.springframework.org/schema/mvc"-->
+<!--       xsi:schemaLocation="           http://www.springframework.org/schema/beans-->
+<!--                   http://www.springframework.org/schema/beans/spring-beans.xsd-->
+<!--                              http://www.springframework.org/schema/context-->
+<!--                              http://www.springframework.org/schema/context/spring-context.xsd-->
+<!--                                         http://www.springframework.org/schema/mvc-->
+<!--                                                     http://www.springframework.org/schema/mvc/spring-mvc.xsd">-->
+<!--    <context:component-scan base-package="org.example"/>-->
+<!--    <mvc:annotation-driven/>-->
+<!--    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">-->
+<!--        <property name="prefix" value="/WEB-INF/views/"/>-->
+<!--        <property name="suffix" value=".jsp"/>-->
+<!--    </bean>-->
+<!--    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+<!--        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>-->
+<!--        <property name="url" value="jdbc:mysql://localhost:3306/Library"/>-->
+<!--        <property name="username" value="root"/>-->
+<!--        <property name="password" value="root"/>-->
+<!--    </bean>-->
+<!--    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">-->
+<!--        <property name="dataSource" ref="dataSource"/>-->
+<!--    </bean>-->
+<!--    <bean id="bookDAO" class="org.example.dao.BookDAO">-->
+<!--        <property name="jdbcTemplate" ref="jdbcTemplate"/>-->
+<!--    </bean>-->
+<!--    <bean id="helloController" class="org.example.controller.HelloController">-->
+<!--        <property name="bookDAO" ref="bookDAO"/>-->
+<!--    </bean>-->
+<!--</beans>-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/mvc
+           http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- Enable component scanning and annotation support -->
+    <context:component-scan base-package="org.example"/>
+    <mvc:annotation-driven/>
+    <mvc:view-controller path="/" view-name="dashboard"/>
+
+
+    <!-- View Resolver -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- DataSource with catalog_db2 -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/catalog_db2"/>
+        <property name="username" value="root"/>
+        <property name="password" value="root"/>
+    </bean>
+
+    <!-- JdbcTemplate -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- DAO and Controller -->
+    <bean id="productDAO" class="org.example.dao.ProductDAO">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
+
+    <bean id="productController" class="org.example.controller.ProductController">
+        <property name="productDAO" ref="productDAO"/>
+    </bean>
+
+</beans>
