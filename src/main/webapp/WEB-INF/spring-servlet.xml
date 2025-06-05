@@ -75,5 +75,13 @@
     <bean id="productController" class="org.example.controller.ProductController">
         <property name="productDAO" ref="productDAO"/>
     </bean>
+    <bean id="promotionDAO" class="org.example.dao.PromotionDAO">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
+
+    <bean id="promotionController" class="org.example.controller.PromotionController">
+        <property name="promotionDAO" ref="promotionDAO"/>
+    </bean>
+
 
 </beans>
