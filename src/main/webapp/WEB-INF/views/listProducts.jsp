@@ -67,7 +67,7 @@
       margin-bottom: 20px;
     }
 
-    form.filters, form.promo-form {
+    form.filters {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
@@ -75,15 +75,14 @@
       margin-bottom: 30px;
     }
 
-    .filters input, .filters select,
-    .promo-form input, .promo-form select, .promo-form textarea {
+    .filters input, .filters select {
       padding: 10px;
       border-radius: 4px;
       border: 1px solid #ccc;
       flex: 1 1 150px;
     }
 
-    .filters button, .promo-form button {
+    .filters button {
       padding: 10px 20px;
       background-color: #007bff;
       color: white;
@@ -92,7 +91,7 @@
       cursor: pointer;
     }
 
-    .filters button:hover, .promo-form button:hover {
+    .filters button:hover {
       background-color: #0056b3;
     }
 
@@ -120,18 +119,25 @@
       text-decoration: none;
       font-weight: bold;
     }
+
+    .action-btn.edit {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+      margin-right: 10px;
+    }
   </style>
 
   <script>
     function updateSizeOptions() {
       const category = document.getElementById('category').value;
       const sizeSelect = document.getElementById('size');
-      sizeSelect.innerHTML = '';
+      sizeSelect.innerHTML = '<option value="" disabled selected>Select Size</option>';
 
       let sizes = [];
       if (category === 'Footwear') {
         sizes = ['6', '7', '8', '9', '10'];
-      } else {
+      } else if (category === 'Men' || category === 'Women' || category === 'Kids') {
         sizes = ['XS', 'S', 'M', 'L', 'XL'];
       }
 
@@ -143,7 +149,9 @@
       });
     }
 
-    window.onload = updateSizeOptions;
+    window.onload = function () {
+      updateSizeOptions(); // Optional: remove this if you want size to stay unselected initially
+    };
   </script>
 </head>
 <body>
@@ -154,7 +162,7 @@
     <h2>Catalog Management System</h2>
     <a href="#">Dashboard</a>
     <a href="#">Add Category</a>
-    <a href="#">Create Promo Code</a>
+    <a href="promotions">Create Promo Code</a>
   </div>
 
   <div class="main">
@@ -162,15 +170,19 @@
 
     <!-- Product Form -->
     <form action="addProduct" method="post" class="filters">
+    <input type="text" name="name" placeholder="Product Name" required />
+          <input type="text" name="sku" placeholder="SKU" required />
       <select id="category" name="categoryName" onchange="updateSizeOptions()" required>
+        <option value="" disabled selected>Select Category</option>
         <option value="Men">Men</option>
         <option value="Women">Women</option>
         <option value="Footwear">Footwear</option>
         <option value="Kids">Kids</option>
       </select>
-      <select id="size" name="size" required></select>
-      <input type="text" name="name" placeholder="Product Name" required />
-      <input type="text" name="sku" placeholder="SKU" required />
+      <select id="size" name="size" required>
+        <option value="" disabled selected>Select Size</option>
+      </select>
+
       <input type="number" step="0.01" name="price" placeholder="Price" required />
       <input type="number" name="discount" placeholder="Discount (%)" required />
       <button type="submit">Add Product</button>
@@ -201,53 +213,13 @@
             <td>${product.discount}</td>
             <td>₹${product.discountPrice}</td>
             <td>
+
               <a href="deleteProduct?id=${product.productId}" class="action-btn delete">🗑️ Delete</a>
             </td>
           </tr>
         </c:forEach>
       </tbody>
     </table>
-
-    <!-- Promotion Section -->
-    <h2>Create Promotion</h2>
-    <form action="addPromotion" method="post" class="promo-form">
-      <select name="promoType" required>
-        <option value="">--Select Promotion Type--</option>
-        <option value="Discount">Discount</option>
-        <option value="Cashback">Cashback</option>
-      </select>
-      <input type="text" name="description" placeholder="Description" required />
-      <input type="text" name="promoCode" placeholder="Promo Code" required />
-      <input type="number" step="0.01" name="amount" placeholder="Amount" required />
-      <button type="submit">Add Promo Code</button>
-    </form>
-
-    <h3>Promotion List</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Promo Type</th>
-          <th>Description</th>
-          <th>Promo Code</th>
-          <th>Amount</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <c:forEach var="promotion" items="${promotions}">
-          <tr>
-            <td>${promotion.promoType}</td>
-            <td>${promotion.description}</td>
-            <td>${promotion.promoCode}</td>
-            <td>₹${promotion.amount}</td>
-            <td>
-              <a href="deletePromotion?id=${promotion.id}" class="action-btn delete">🗑️ Delete</a>
-            </td>
-          </tr>
-        </c:forEach>
-      </tbody>
-    </table>
-
 
   </div>
 </div>

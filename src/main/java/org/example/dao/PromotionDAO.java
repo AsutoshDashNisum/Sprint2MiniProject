@@ -36,6 +36,29 @@ public class PromotionDAO {
         String sql = "SELECT * FROM promotions";
         return jdbcTemplate.query(sql, new PromotionMapper());
     }
+    // Add Promotion
+    public int addPromotion(Promotion promo) {
+        String sql = "INSERT INTO promotions (PromoType, Description, PromoCode, PromoAmount) VALUES (?, ?, ?, ?)";
+        return jdbcTemplate.update(sql, promo.getPromoType(), promo.getDescription(), promo.getPromoCode(), promo.getAmount());
+    }
 
-    // Optional: Add more methods like getById, addPromotion, deletePromotion, etc.
+    // Delete Promotion
+    public int deletePromotion(int id) {
+        String sql = "DELETE FROM promotions WHERE PromoTypeId = ?";
+        return jdbcTemplate.update(sql, id);
+    }
+
+    // Update Promotion
+    public int updatePromotion(Promotion promo) {
+        String sql = "UPDATE promotions SET PromoType = ?, Description = ?, PromoCode = ?, PromoAmount = ? WHERE PromoTypeId = ?";
+        return jdbcTemplate.update(sql, promo.getPromoType(), promo.getDescription(), promo.getPromoCode(), promo.getAmount(), promo.getId());
+    }
+
+    // Get one promotion
+    public Promotion getPromotionById(int id) {
+        String sql = "SELECT * FROM promotions WHERE PromoTypeId = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{id}, new PromotionMapper());
+    }
+
+
 }

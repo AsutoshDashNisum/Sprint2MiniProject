@@ -4,25 +4,47 @@ import org.example.dao.PromotionDAO;
 import org.example.model.Promotion;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class PromotionController {
 
     private PromotionDAO promotionDAO;
 
-    // Setter injection for PromotionDAO
     public void setPromotionDAO(PromotionDAO promotionDAO) {
         this.promotionDAO = promotionDAO;
     }
 
-    // Mapping to show list of promotions
     @GetMapping("/promotions")
     public String showPromotions(Model model) {
-        List<Promotion> promotions = promotionDAO.getAllPromotions();
-        model.addAttribute("promotions", promotions);
-        return "promotionList";  // JSP page to render (create promotionList.jsp)
+        model.addAttribute("promotions", promotionDAO.getAllPromotions());
+        model.addAttribute("promotion", new Promotion()); // For form binding
+        return "promotionList";
+    }
+
+    @PostMapping("/addPromotion")
+    public String addPromotion(@ModelAttribute("promotion") Promotion promo, RedirectAttributes redirectAttributes) {
+        promotionDAO.addPromotion(promo);
+        return "redirect:/promotions";
+    }
+
+    @GetMapping("/deletePromotion")
+    public String deletePromotion(@RequestParam int id) {
+        promotionDAO.deletePromotion(id);
+        return "redirect:/promotions";
+    }
+
+    @GetMapping("/editPromotion")
+    public String editPromotion(@RequestParam int id, Model model) {
+        model.addAttribute("promotion", promotionDAO.getPromotionById(id));
+        model.addAttribute("promotions", promotionDAO.getAllPromotions());
+        return "promotionList";
+    }
+
+    @PostMapping("/updatePromotion")
+    public String updatePromotion(@ModelAttribute Promotion promo) {
+        promotionDAO.updatePromotion(promo);
+        return "redirect:/promotions";
     }
 }
