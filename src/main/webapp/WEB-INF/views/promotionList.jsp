@@ -138,16 +138,14 @@
   <div class="sidebar">
     <img class="logo" src="https://www.nisum.com/hubfs/nisum-logo-400x400.png" alt="Nisum Logo" />
     <h2>Catalog Management System</h2>
-    <a href="products">Dashboard</a>
-    <a href="addCategory">Add Category</a>
-
+    <a href="${pageContext.request.contextPath}/products">Dashboard</a>
+    <a href="${pageContext.request.contextPath}/addCategory">Add Category</a>
   </div>
 
   <div class="main">
     <h1>Available Promotions</h1>
 
-    <!-- Add / Edit Promotion Form -->
-    <form action="${promotion.id == 0 ? 'addPromotion' : 'updatePromotion'}" method="post" class="promo-form">
+    <form action="${pageContext.request.contextPath}/${promotion.id == 0 ? 'addPromotion' : 'updatePromotion'}" method="post" class="promo-form">
       <input type="hidden" name="id" value="${promotion.id}" />
       <select name="promoType" required>
         <option value="">Select Type</option>
@@ -160,7 +158,6 @@
       <button type="submit">${promotion.id == 0 ? 'Add Promotion' : 'Update Promotion'}</button>
     </form>
 
-    <!-- Promotion List Table -->
     <table>
       <thead>
         <tr>
@@ -181,8 +178,8 @@
             <td>${promo.promoCode}</td>
             <td>₹${promo.amount}</td>
             <td>
-              <a href="editPromotion?id=${promo.id}" class="btn edit-btn">Edit</a>
-              <a href="deletePromotion?id=${promo.id}" class="btn delete-btn" onclick="return confirm('Are you sure you want to delete this promotion?')">Delete</a>
+              <a href="${pageContext.request.contextPath}/editPromotion?id=${promo.id}" class="btn edit-btn">Edit</a>
+              <a href="${pageContext.request.contextPath}/deletePromotion?id=${promo.id}" class="btn delete-btn" onclick="return confirm('Are you sure you want to delete this promotion?')">Delete</a>
             </td>
           </tr>
         </c:forEach>

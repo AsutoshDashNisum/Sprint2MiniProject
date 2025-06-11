@@ -12,12 +12,10 @@ public class PromotionDAO {
 
     private JdbcTemplate jdbcTemplate;
 
-    // Setter for jdbcTemplate (Spring will inject this)
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // RowMapper to map DB rows to Promotion objects
     private static final class PromotionMapper implements RowMapper<Promotion> {
         @Override
         public Promotion mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -31,34 +29,32 @@ public class PromotionDAO {
         }
     }
 
-    // Method to get all promotions
     public List<Promotion> getAllPromotions() {
         String sql = "SELECT * FROM promotions";
         return jdbcTemplate.query(sql, new PromotionMapper());
     }
-    // Add Promotion
+
     public int addPromotion(Promotion promo) {
         String sql = "INSERT INTO promotions (PromoType, Description, PromoCode, PromoAmount) VALUES (?, ?, ?, ?)";
         return jdbcTemplate.update(sql, promo.getPromoType(), promo.getDescription(), promo.getPromoCode(), promo.getAmount());
     }
 
-    // Delete Promotion
     public int deletePromotion(int id) {
         String sql = "DELETE FROM promotions WHERE PromoTypeId = ?";
         return jdbcTemplate.update(sql, id);
     }
 
-    // Update Promotion
     public int updatePromotion(Promotion promo) {
         String sql = "UPDATE promotions SET PromoType = ?, Description = ?, PromoCode = ?, PromoAmount = ? WHERE PromoTypeId = ?";
         return jdbcTemplate.update(sql, promo.getPromoType(), promo.getDescription(), promo.getPromoCode(), promo.getAmount(), promo.getId());
     }
 
-    // Get one promotion
     public Promotion getPromotionById(int id) {
-        String sql = "SELECT * FROM promotions WHERE PromoTypeId = ?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{id}, new PromotionMapper());
+        try {
+            String sql = "SELECT * FROM promotions WHERE PromoTypeId = ?";
+            return jdbcTemplate.queryForObject(sql, new Object[]{id}, new PromotionMapper());
+        } catch (Exception e) {
+            return null;
+        }
     }
-
-
 }

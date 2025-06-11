@@ -3,6 +3,7 @@ package org.example.controller;
 import org.example.dao.ProductDAO;
 import org.example.model.Product;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -51,6 +52,20 @@ public class ProductController {
         productDAO.deleteProduct(id);
         return "redirect:/products";
     }
+    @GetMapping("/editProduct")
+    public String editProduct(@RequestParam int id, Model model) {
+        Product product = productDAO.getProductById(id);
+        model.addAttribute("productToEdit", product);
+        model.addAttribute("products", productDAO.getAllProducts());
+        return "listProduct"; // same JSP page
+    }
+
+    @PostMapping("/updateProduct")
+    public String updateProduct(@ModelAttribute Product product) {
+        productDAO.updateProduct(product);
+        return "redirect:/products";
+    }
+
 
 
 }

@@ -7,7 +7,6 @@ public class Promotion {
     private String promoCode;
     private double amount;
 
-    // Getters and Setters
     public int getId() {
         return id;
     }

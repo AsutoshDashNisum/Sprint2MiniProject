@@ -14,12 +14,7 @@
       background-color: #f7f9fc;
       overflow: hidden;
     }
-
-    .container {
-      display: flex;
-      height: 100vh;
-    }
-
+    .container { display: flex; height: 100vh; }
     .sidebar {
       width: 250px;
       background-color: #2c3e50;
@@ -31,7 +26,6 @@
       flex-direction: column;
       align-items: center;
     }
-
     .sidebar img.logo {
       width: 100px;
       height: 100px;
@@ -39,13 +33,7 @@
       object-fit: cover;
       margin-bottom: 20px;
     }
-
-    .sidebar h2 {
-      font-size: 20px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
+    .sidebar h2 { font-size: 20px; margin-bottom: 20px; text-align: center; }
     .sidebar a {
       display: block;
       color: #fff;
@@ -53,7 +41,6 @@
       margin: 10px 0;
       font-size: 16px;
     }
-
     .main {
       flex-grow: 1;
       overflow-y: auto;
@@ -61,12 +48,7 @@
       box-sizing: border-box;
       background-color: #f7f9fc;
     }
-
-    h1, h2, h3 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
+    h1, h2, h3 { text-align: center; margin-bottom: 20px; }
     form.filters {
       display: flex;
       flex-wrap: wrap;
@@ -74,14 +56,12 @@
       justify-content: center;
       margin-bottom: 30px;
     }
-
     .filters input, .filters select {
       padding: 10px;
       border-radius: 4px;
       border: 1px solid #ccc;
       flex: 1 1 150px;
     }
-
     .filters button {
       padding: 10px 20px;
       background-color: #007bff;
@@ -90,11 +70,7 @@
       border-radius: 4px;
       cursor: pointer;
     }
-
-    .filters button:hover {
-      background-color: #0056b3;
-    }
-
+    .filters button:hover { background-color: #0056b3; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -102,24 +78,17 @@
       background: white;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-
     th, td {
       padding: 12px;
       border: 1px solid #ccc;
       text-align: center;
     }
-
-    th {
-      background-color: #f5f5f5;
-      font-weight: bold;
-    }
-
+    th { background-color: #f5f5f5; font-weight: bold; }
     .action-btn.delete {
       color: #dc3545;
       text-decoration: none;
       font-weight: bold;
     }
-
     .action-btn.edit {
       color: #007bff;
       text-decoration: none;
@@ -129,6 +98,8 @@
   </style>
 
   <script>
+    let existingSkus = [];
+
     function updateSizeOptions() {
       const category = document.getElementById('category').value;
       const sizeSelect = document.getElementById('size');
@@ -147,10 +118,38 @@
         option.textContent = size;
         sizeSelect.appendChild(option);
       });
+
+      // Preselect size if editing
+      const selectedSize = "${productToEdit.size}";
+      if (selectedSize) {
+        sizeSelect.value = selectedSize;
+      }
+    }
+
+    function validateForm() {
+      const discount = document.querySelector('input[name="discount"]').value;
+      const sku = document.querySelector('input[name="sku"]').value.trim().toLowerCase();
+      const editing = document.querySelector('input[name="productId"]');
+
+      if (discount > 100) {
+        alert("Discount cannot be more than 100%");
+        return false;
+      }
+
+      if (!editing && existingSkus.includes(sku)) {
+        alert("SKU must be unique. This SKU already exists.");
+        return false;
+      }
+
+      return true;
     }
 
     window.onload = function () {
-      updateSizeOptions(); // Optional: remove this if you want size to stay unselected initially
+      updateSizeOptions();
+
+      <c:forEach var="product" items="${products}">
+        existingSkus.push("${product.sku}".toLowerCase());
+      </c:forEach>
     };
   </script>
 </head>
@@ -169,22 +168,25 @@
     <h1>Catalog Dashboard</h1>
 
     <!-- Product Form -->
-    <form action="addProduct" method="post" class="filters">
-      <input type="text" name="name" placeholder="Product Name" required />
-      <input type="text" name="sku" placeholder="SKU" required />
+    <form action="${productToEdit != null ? 'updateProduct' : 'addProduct'}" method="post" class="filters" onsubmit="return validateForm()">
+      <c:if test="${productToEdit != null}">
+        <input type="hidden" name="productId" value="${productToEdit.productId}" />
+      </c:if>
+      <input type="text" name="name" placeholder="Product Name" required value="${productToEdit.name}" />
+      <input type="text" name="sku" placeholder="SKU" required value="${productToEdit.sku}" />
       <select id="category" name="categoryName" onchange="updateSizeOptions()" required>
-        <option value="" disabled selected>Select Category</option>
-        <option value="Men">Men</option>
-        <option value="Women">Women</option>
-        <option value="Footwear">Footwear</option>
-        <option value="Kids">Kids</option>
+        <option value="" disabled ${productToEdit == null ? 'selected' : ''}>Select Category</option>
+        <option value="Men" ${productToEdit.categoryName == 'Men' ? 'selected' : ''}>Men</option>
+        <option value="Women" ${productToEdit.categoryName == 'Women' ? 'selected' : ''}>Women</option>
+        <option value="Footwear" ${productToEdit.categoryName == 'Footwear' ? 'selected' : ''}>Footwear</option>
+        <option value="Kids" ${productToEdit.categoryName == 'Kids' ? 'selected' : ''}>Kids</option>
       </select>
       <select id="size" name="size" required>
-        <option value="" disabled selected>Select Size</option>
+        <option value="" disabled>Select Size</option>
       </select>
-      <input type="number" step="0.01" name="price" placeholder="Price" required />
-      <input type="number" name="discount" placeholder="Discount (%)" required />
-      <button type="submit">Add Product</button>
+      <input type="number" step="0.01" name="price" placeholder="Price" required value="${productToEdit.price}" />
+      <input type="number" name="discount" placeholder="Discount (%)" required value="${productToEdit.discount}" />
+      <button type="submit">${productToEdit != null ? 'Update Product' : 'Add Product'}</button>
     </form>
 
     <!-- Product List -->
@@ -212,18 +214,15 @@
             <td>${product.discount}</td>
             <td>₹${product.discountPrice}</td>
             <td>
-              <!-- ✅ Delete confirmation added here -->
+              <a href="editProduct?id=${product.productId}" class="action-btn edit">✏️ Edit</a>
               <a href="deleteProduct?id=${product.productId}"
                  class="action-btn delete"
-                 onclick="return confirm('Are you sure you want to delete this product?');">
-                 🗑️ Delete
-              </a>
+                 onclick="return confirm('Are you sure you want to delete this product?');">🗑️ Delete</a>
             </td>
           </tr>
         </c:forEach>
       </tbody>
     </table>
-
   </div>
 </div>
 
