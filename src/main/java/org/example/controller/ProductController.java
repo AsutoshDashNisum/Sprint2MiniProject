@@ -47,7 +47,7 @@ public class ProductController {
     }
 
     @GetMapping("/deleteProduct")
-    public String deleteProduct(@RequestParam int id) {
+    public String deleteProduct(@RequestParam("id") int id) {
         productDAO.deleteProduct(id);
         return "redirect:/products";
     }

@@ -170,8 +170,8 @@
 
     <!-- Product Form -->
     <form action="addProduct" method="post" class="filters">
-    <input type="text" name="name" placeholder="Product Name" required />
-          <input type="text" name="sku" placeholder="SKU" required />
+      <input type="text" name="name" placeholder="Product Name" required />
+      <input type="text" name="sku" placeholder="SKU" required />
       <select id="category" name="categoryName" onchange="updateSizeOptions()" required>
         <option value="" disabled selected>Select Category</option>
         <option value="Men">Men</option>
@@ -182,7 +182,6 @@
       <select id="size" name="size" required>
         <option value="" disabled selected>Select Size</option>
       </select>
-
       <input type="number" step="0.01" name="price" placeholder="Price" required />
       <input type="number" name="discount" placeholder="Discount (%)" required />
       <button type="submit">Add Product</button>
@@ -213,8 +212,12 @@
             <td>${product.discount}</td>
             <td>₹${product.discountPrice}</td>
             <td>
-
-              <a href="deleteProduct?id=${product.productId}" class="action-btn delete">🗑️ Delete</a>
+              <!-- ✅ Delete confirmation added here -->
+              <a href="deleteProduct?id=${product.productId}"
+                 class="action-btn delete"
+                 onclick="return confirm('Are you sure you want to delete this product?');">
+                 🗑️ Delete
+              </a>
             </td>
           </tr>
         </c:forEach>

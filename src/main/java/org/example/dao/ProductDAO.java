@@ -19,7 +19,7 @@ public class ProductDAO {
     }
 
     public List<Product> getAllProducts() {
-        String sql = "SELECT * FROM Product";
+        String sql = "SELECT * FROM catalog_db2.product  where status='active'";
         return jdbcTemplate.query(sql, new ProductMapper());
     }
 
@@ -30,7 +30,7 @@ public class ProductDAO {
     }
 
     public void deleteProduct(int id) {
-        String sql = "DELETE FROM Product WHERE ProductID = ?";
+        String sql ="UPDATE catalog_db2.product SET status = 'inactive' WHERE productId = ?";
         jdbcTemplate.update(sql, id);
     }
 
