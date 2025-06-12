@@ -47,25 +47,36 @@ public class ProductController {
         return "redirect:/products";
     }
 
-    @GetMapping("/deleteProduct")
-    public String deleteProduct(@RequestParam("id") int id) {
-        productDAO.deleteProduct(id);
-        return "redirect:/products";
-    }
+//    @GetMapping("/deleteProduct")
+//    public String deleteProduct(@RequestParam("id") int id) {
+//        productDAO.deleteProduct(id);
+//        return "redirect:/products";
+//    }
     @GetMapping("/editProduct")
     public String editProduct(@RequestParam int id, Model model) {
         Product product = productDAO.getProductById(id);
         model.addAttribute("productToEdit", product);
         model.addAttribute("products", productDAO.getAllProducts());
-        return "listProduct"; // same JSP page
+        return "listProducts"; // same JSP page
     }
 
     @PostMapping("/updateProduct")
     public String updateProduct(@ModelAttribute Product product) {
+        // Recalculate discountPrice before saving
+        double discountPrice = product.getPrice() - (product.getPrice() * product.getDiscount() / 100.0);
+        product.setDiscountPrice(discountPrice);
+
         productDAO.updateProduct(product);
         return "redirect:/products";
     }
 
+    @PostMapping("/deleteProduct")
+    public String deleteSelectedProducts(@RequestParam("ids") List<Integer> ids) {
+        for (int id : ids) {
+            productDAO.deleteProduct(id);
+        }
+        return "redirect:/products";
+    }
 
 
 }

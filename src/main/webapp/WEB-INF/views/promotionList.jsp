@@ -6,129 +6,185 @@
   <meta charset="UTF-8">
   <title>Promotion Management</title>
   <style>
-    html, body {
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
       margin: 0;
-      padding: 0;
-      height: 100%;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f7f9fc;
+      background: #ecf0f3;
     }
 
     .container {
       display: flex;
       height: 100vh;
+      overflow: hidden;
     }
 
     .sidebar {
-      width: 250px;
-      background-color: #2c3e50;
-      padding: 20px;
+      width: 280px;
+      background: linear-gradient(180deg, #2c3e50, #34495e);
       color: #fff;
-      box-sizing: border-box;
-      flex-shrink: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 30px 15px;
     }
 
     .sidebar img.logo {
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 20px;
+      border: 3px solid #1abc9c;
+      background: white;
     }
 
     .sidebar h2 {
-      font-size: 20px;
-      margin-bottom: 20px;
       text-align: center;
+      font-size: 20px;
+      margin-bottom: 25px;
     }
 
     .sidebar a {
-      display: block;
-      color: #fff;
       text-decoration: none;
-      margin: 10px 0;
-      font-size: 16px;
+      color: #fff;
+      padding: 10px 20px;
+      width: 100%;
+      display: block;
+      border-radius: 6px;
+      margin: 8px 0;
+      transition: background 0.3s ease;
+    }
+
+    .sidebar a:hover {
+      background-color: #1abc9c;
+    }
+
+    .sidebar a.active {
+      background-color: #1abc9c;
+      font-weight: bold;
     }
 
     .main {
       flex-grow: 1;
-      overflow-y: auto;
       padding: 30px;
-      box-sizing: border-box;
-      background-color: #f7f9fc;
+      overflow-y: auto;
+      background: #f4f7fa;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      color: #2c3e50;
     }
 
     form.promo-form {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
       justify-content: center;
-      margin-bottom: 30px;
+      margin: 25px 0;
     }
 
     .promo-form input,
     .promo-form select {
-      padding: 10px;
-      border-radius: 4px;
+      padding: 10px 14px;
+      border-radius: 5px;
       border: 1px solid #ccc;
-      flex: 1 1 150px;
+      width: 180px;
     }
 
     .promo-form button {
       padding: 10px 20px;
-      background-color: #28a745;
-      color: white;
       border: none;
-      border-radius: 4px;
+      background: #1abc9c;
+      color: white;
+      border-radius: 5px;
       cursor: pointer;
+      transition: background 0.3s ease;
     }
 
     .promo-form button:hover {
-      background-color: #218838;
+      background: #16a085;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
       background: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
 
     th, td {
       padding: 12px;
-      border: 1px solid #ccc;
       text-align: center;
+      border-bottom: 1px solid #ddd;
     }
 
     th {
-      background-color: #f5f5f5;
-      font-weight: bold;
+      background-color: #eaeff5;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    td {
+      color: #333;
     }
 
     .btn {
-      padding: 6px 10px;
       text-decoration: none;
+      padding: 6px 12px;
       border-radius: 4px;
       color: white;
-      margin: 0 2px;
-      display: inline-block;
+      font-size: 14px;
     }
 
     .edit-btn {
-      background-color: #ffc107;
+      background-color: #f0ad4e;
+    }
+
+    .edit-btn:hover {
+      background-color: #ec971f;
     }
 
     .delete-btn {
-      background-color: #dc3545;
+      background-color: #d9534f;
+    }
+
+    .delete-btn:hover {
+      background-color: #c9302c;
+    }
+
+    @media screen and (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 15px;
+        width: 100%;
+        height: auto;
+      }
+
+      .main {
+        padding: 15px;
+      }
+
+      .promo-form {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .promo-form input,
+      .promo-form select,
+      .promo-form button {
+        width: 100%;
+        max-width: 300px;
+      }
     }
   </style>
 </head>
@@ -137,9 +193,10 @@
 <div class="container">
   <div class="sidebar">
     <img class="logo" src="https://www.nisum.com/hubfs/nisum-logo-400x400.png" alt="Nisum Logo" />
-    <h2>Catalog Management System</h2>
+    <h2>Catalog Management</h2>
     <a href="${pageContext.request.contextPath}/products">Dashboard</a>
     <a href="${pageContext.request.contextPath}/addCategory">Add Category</a>
+    <a href="${pageContext.request.contextPath}/promotions" class="active">Create Promo Code</a>
   </div>
 
   <div class="main">

@@ -1,211 +1,187 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%
+    String path = request.getRequestURI();
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Catalog Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f7f9fc;
-      overflow: hidden;
-    }
-    .container { display: flex; height: 100vh; }
+    html, body { margin:0; padding:0; height:100%; font-family:'Segoe UI',sans-serif; background:#f4f6f8; }
+    .container { display:flex; min-height:100vh; }
     .sidebar {
-      width: 250px;
-      background-color: #2c3e50;
-      padding: 20px;
-      color: #fff;
-      box-sizing: border-box;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      width:250px; background:linear-gradient(180deg,#2c3e50,#34495e);
+      color:white; padding:20px; display:flex; flex-direction:column; align-items:center;
     }
-    .sidebar img.logo {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 20px;
-    }
-    .sidebar h2 { font-size: 20px; margin-bottom: 20px; text-align: center; }
+    .sidebar img.logo { width:100px; height:100px; margin-bottom:20px; border-radius:50%; border:2px solid white; }
+    .sidebar h2 { font-size:18px; margin-bottom:30px; text-align:center; }
     .sidebar a {
-      display: block;
-      color: #fff;
-      text-decoration: none;
-      margin: 10px 0;
-      font-size: 16px;
+      color:white; text-decoration:none; padding:10px; margin:5px 0;
+      width:100%; text-align:center; border-radius:5px;
+      background-color:transparent; transition:background-color .3s;
     }
-    .main {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 30px;
-      box-sizing: border-box;
-      background-color: #f7f9fc;
+    .sidebar a:hover, .sidebar a.active { background-color:#1abc9c; font-weight:bold; }
+    .main { flex:1; padding:30px; background:#ecf0f3; overflow-x:auto; }
+    h1 { text-align:center; color:#333; }
+    .table-actions { text-align:right; margin-bottom:10px; }
+    .table-actions button {
+      margin-left:10px; padding:8px 14px; font-size:14px; border:none; border-radius:4px; cursor:pointer;
     }
-    h1, h2, h3 { text-align: center; margin-bottom: 20px; }
-    form.filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 30px;
-    }
-    .filters input, .filters select {
-      padding: 10px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      flex: 1 1 150px;
-    }
-    .filters button {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .filters button:hover { background-color: #0056b3; }
+    .add-btn { background-color:#27ae60; color:white; }
+    .edit-btn, .delete-btn { background-color:#e74c3c; color:white; }
+    .delete-btn { background-color:#c0392b; }
+    button:disabled { background-color:#bdc3c7; cursor:not-allowed; }
     table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      width:100%; border-collapse:collapse; background:white;
+      box-shadow:0 0 10px rgba(0,0,0,0.1);
     }
-    th, td {
-      padding: 12px;
-      border: 1px solid #ccc;
-      text-align: center;
+    th,td { padding:12px; text-align:center; border:1px solid #ddd; }
+    th { background:#f5f5f5; font-weight:bold; }
+    tbody tr:hover { background:#f0f8ff; }
+
+    /* Modal */
+    .modal { display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4); }
+    .modal-content {
+      background:#fff; margin:8% auto; padding:20px; border:1px solid #888;
+      width:90%; max-width:600px; border-radius:8px; position:relative;
     }
-    th { background-color: #f5f5f5; font-weight: bold; }
-    .action-btn.delete {
-      color: #dc3545;
-      text-decoration: none;
-      font-weight: bold;
+    .close { position:absolute; top:10px; right:15px; font-size:24px; font-weight:bold; cursor:pointer; }
+    form.modal-form {
+      display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
     }
-    .action-btn.edit {
-      color: #007bff;
-      text-decoration: none;
-      font-weight: bold;
-      margin-right: 10px;
+    form.modal-form input, form.modal-form select {
+      padding:10px; border:1px solid #ccc; border-radius:5px; flex:1 1 200px;
+    }
+    form.modal-form button { background:#3498db; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; }
+    @media (max-width:768px) {
+      .container { flex-direction:column; }
+      .sidebar { flex-direction:row; flex-wrap:wrap; justify-content:space-around; width:100%; }
+      .sidebar a { margin:5px; padding:8px; font-size:14px; }
     }
   </style>
 
   <script>
     let existingSkus = [];
 
-    function updateSizeOptions() {
-      const category = document.getElementById('category').value;
-      const sizeSelect = document.getElementById('size');
-      sizeSelect.innerHTML = '<option value="" disabled selected>Select Size</option>';
-
-      let sizes = [];
-      if (category === 'Footwear') {
-        sizes = ['6', '7', '8', '9', '10'];
-      } else if (category === 'Men' || category === 'Women' || category === 'Kids') {
-        sizes = ['XS', 'S', 'M', 'L', 'XL'];
-      }
-
-      sizes.forEach(size => {
-        const option = document.createElement('option');
-        option.value = size;
-        option.textContent = size;
-        sizeSelect.appendChild(option);
+    function populateModal(mode, data = {}) {
+      document.getElementById('modalTitle').textContent = mode === 'edit' ? 'Edit Product' : 'Add Product';
+      const form = document.getElementById('modal-form');
+      form.action = mode === 'edit' ? 'updateProduct' : 'addProduct';
+      ['productId','name','sku','categoryName','size','price','discount'].forEach(field => {
+        const el = form.querySelector('[name="' + field + '"]');
+        if (data[field] !== undefined && el) el.value = data[field];
       });
-
-      // Preselect size if editing
-      const selectedSize = "${productToEdit.size}";
-      if (selectedSize) {
-        sizeSelect.value = selectedSize;
-      }
+      // populate size dropdown and select
+      updateSizeOptions();
+      if (mode === 'edit') document.getElementById('modal-size').value = data.size;
+      openModal();
     }
 
-    function validateForm() {
-      const discount = document.querySelector('input[name="discount"]').value;
-      const sku = document.querySelector('input[name="sku"]').value.trim().toLowerCase();
-      const editing = document.querySelector('input[name="productId"]');
+    function updateSizeOptions() {
+      const cat = document.getElementById('modal-category').value;
+      const sizeEl = document.getElementById('modal-size');
+      sizeEl.innerHTML = '<option value="" disabled>Select Size</option>';
+      let sizes = [];
+      if (cat === 'Footwear') sizes = ['6','7','8','9','10'];
+      else if (['Men','Women','Kids'].includes(cat)) sizes = ['XS','S','M','L','XL'];
+      sizes.forEach(s => {
+        const o = document.createElement('option');
+        o.value = s; o.textContent = s;
+        sizeEl.appendChild(o);
+      });
+    }
 
-      if (discount > 100) {
-        alert("Discount cannot be more than 100%");
-        return false;
-      }
-
-      if (!editing && existingSkus.includes(sku)) {
-        alert("SKU must be unique. This SKU already exists.");
-        return false;
-      }
-
+    function validateModalForm() {
+      const form = document.getElementById('modal-form');
+      const disc = parseFloat(form.discount.value);
+      const sku = parseInt(form.sku.value.trim());
+      const editing = !!form.productId.value;
+      if (disc > 100) { alert("Discount > 100%"); return false; }
+      if (!editing && existingSkus.includes(sku)) { alert("SKU exists"); return false; }
       return true;
     }
 
-    window.onload = function () {
-      updateSizeOptions();
+    function openModal() { document.getElementById('productModal').style.display = 'block'; }
+    function closeModal() { document.getElementById('productModal').style.display = 'none'; }
 
-      <c:forEach var="product" items="${products}">
-        existingSkus.push("${product.sku}".toLowerCase());
+    function onCheckboxClick() {
+      const sel = document.querySelectorAll('input[name="selProd"]:checked');
+      document.getElementById('editBtn').disabled = sel.length !== 1;
+      document.getElementById('deleteBtn').disabled = sel.length === 0;
+    }
+
+    function handleEdit() {
+      const sel = document.querySelector('input[name="selProd"]:checked');
+      if (!sel) return;
+      const row = sel.closest('tr');
+      const data = {
+        productId: sel.value,
+        categoryName: row.cells[1].textContent,
+        name: row.cells[2].textContent,
+        sku: row.cells[3].textContent,
+        size: row.cells[4].textContent,
+        price: row.cells[5].textContent.replace('₹',''),
+        discount: row.cells[6].textContent
+      };
+      populateModal('edit', data);
+    }
+
+    function handleDelete() {
+      const sel = document.querySelectorAll('input[name="selProd"]:checked');
+      if (sel.length && confirm("Delete selected?")) {
+        const f = document.getElementById('deleteForm');
+        document.getElementById('deleteIds').innerHTML = '';
+        sel.forEach(i => {
+          const h = document.createElement('input');
+          h.type='hidden'; h.name='ids'; h.value=i.value;
+          document.getElementById('deleteIds').appendChild(h);
+        });
+        f.submit();
+      }
+    }
+
+    window.onload = function() {
+      <c:forEach var="p" items="${products}">
+        existingSkus.push(parseInt("${p.sku}"));
       </c:forEach>
     };
   </script>
 </head>
 <body>
-
 <div class="container">
   <div class="sidebar">
-    <img class="logo" src="https://www.nisum.com/hubfs/nisum-logo-400x400.png" alt="Nisum Logo" />
-    <h2>Catalog Management System</h2>
-    <a href="#">Dashboard</a>
-    <a href="#">Add Category</a>
-    <a href="promotions">Create Promo Code</a>
+    <img src="https://www.nisum.com/hubfs/nisum-logo-400x400.png" alt="Logo" class="logo"/>
+    <h2>Catalog Management</h2>
+    <a href="products" class="active">Dashboard</a>
+    <a href="addCategory" class="<%= path.contains("/addCategory")?"active":"" %>">Add Category</a>
+    <a href="promotions" class="<%= path.contains("/promotions")?"active":"" %>">Create Promo Code</a>
   </div>
-
   <div class="main">
     <h1>Catalog Dashboard</h1>
 
-    <!-- Product Form -->
-    <form action="${productToEdit != null ? 'updateProduct' : 'addProduct'}" method="post" class="filters" onsubmit="return validateForm()">
-      <c:if test="${productToEdit != null}">
-        <input type="hidden" name="productId" value="${productToEdit.productId}" />
-      </c:if>
-      <input type="text" name="name" placeholder="Product Name" required value="${productToEdit.name}" />
-      <input type="text" name="sku" placeholder="SKU" required value="${productToEdit.sku}" />
-      <select id="category" name="categoryName" onchange="updateSizeOptions()" required>
-        <option value="" disabled ${productToEdit == null ? 'selected' : ''}>Select Category</option>
-        <option value="Men" ${productToEdit.categoryName == 'Men' ? 'selected' : ''}>Men</option>
-        <option value="Women" ${productToEdit.categoryName == 'Women' ? 'selected' : ''}>Women</option>
-        <option value="Footwear" ${productToEdit.categoryName == 'Footwear' ? 'selected' : ''}>Footwear</option>
-        <option value="Kids" ${productToEdit.categoryName == 'Kids' ? 'selected' : ''}>Kids</option>
-      </select>
-      <select id="size" name="size" required>
-        <option value="" disabled>Select Size</option>
-      </select>
-      <input type="number" step="0.01" name="price" placeholder="Price" required value="${productToEdit.price}" />
-      <input type="number" name="discount" placeholder="Discount (%)" required value="${productToEdit.discount}" />
-      <button type="submit">${productToEdit != null ? 'Update Product' : 'Add Product'}</button>
-    </form>
+    <div class="table-actions">
+      <button class="add-btn" onclick="populateModal('add')">+ Add Product</button>
+      <button class="edit-btn" id="editBtn" onclick="handleEdit()" disabled>Edit</button>
+      <button class="delete-btn" id="deleteBtn" onclick="handleDelete()" disabled>Delete</button>
+    </div>
 
-    <!-- Product List -->
+    <form id="deleteForm" action="deleteProduct" method="post"><div id="deleteIds"></div></form>
+
     <table>
       <thead>
         <tr>
-          <th>Category</th>
-          <th>Product</th>
-          <th>SKU</th>
-          <th>Size</th>
-          <th>Price (₹)</th>
-          <th>Discount (%)</th>
-          <th>Discount Price (₹)</th>
-          <th>Actions</th>
+          <th>Select</th><th>Category</th><th>Product</th><th>SKU</th>
+          <th>Size</th><th>Price (₹)</th><th>Discount (%)</th><th>Discount Price (₹)</th>
         </tr>
       </thead>
       <tbody>
         <c:forEach var="product" items="${products}">
           <tr>
+            <td><input type="checkbox" name="selProd" value="${product.productId}" onclick="onCheckboxClick()"/></td>
             <td>${product.categoryName}</td>
             <td>${product.name}</td>
             <td>${product.sku}</td>
@@ -213,12 +189,6 @@
             <td>₹${product.price}</td>
             <td>${product.discount}</td>
             <td>₹${product.discountPrice}</td>
-            <td>
-              <a href="editProduct?id=${product.productId}" class="action-btn edit">✏️ Edit</a>
-              <a href="deleteProduct?id=${product.productId}"
-                 class="action-btn delete"
-                 onclick="return confirm('Are you sure you want to delete this product?');">🗑️ Delete</a>
-            </td>
           </tr>
         </c:forEach>
       </tbody>
@@ -226,5 +196,25 @@
   </div>
 </div>
 
+<!-- Modal -->
+<div id="productModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2 id="modalTitle" style="text-align:center;">Add Product</h2>
+    <form id="modal-form" class="modal-form" method="post" onsubmit="return validateModalForm()">
+      <input type="hidden" name="productId" />
+      <input type="text" name="name" placeholder="Product Name" required />
+      <input type="number" name="sku" id="modal-sku" placeholder="SKU" required />
+      <select name="categoryName" id="modal-category" onchange="updateSizeOptions()" required>
+        <option value="" disabled>Select Category</option>
+        <option>Men</option><option>Women</option><option>Footwear</option><option>Kids</option>
+      </select>
+      <select name="size" id="modal-size" required><option value="" disabled>Select Size</option></select>
+      <input type="number" name="price" step="0.01" placeholder="Price" required />
+      <input type="number" name="discount" id="modal-discount" placeholder="Discount (%)" required />
+      <button type="submit">Save Product</button>
+    </form>
+  </div>
+</div>
 </body>
 </html>
